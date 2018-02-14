@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+<body ng-app="myApp">
+
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Dook</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Bookings</a></li>
+            <li><a href="#">Bookings</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<div class="container" ng-controller="Bookings">
+    <div class="row">
+    	<div id="loading">Loading from blockchain</div>
+    	<h1>Bookings loaded from blockchain</h1>
+		 <table border="1">
+	        <tr>
+	          <td>RateCode</td>
+	          <td>Status</td>
+	          <td>host Address</td>
+	        </tr>
+	        <tr ng-repeat="x in bookings">
+	            <td>{{x.ratecode}}</td>
+	            <td>{{x.status}}</td>
+	            <td>{{x.address}}</td>
+	            <td>
+	            	<button>Cancel</button>
+	            </td>
+	        </tr>
+	    </table>
+
+    </div>
+</div>
+
+<script>
+
+
+var app = angular.module("myApp", []);
+
+app.controller("Bookings", function($scope, $http) 
+{
+  var walletAddress = "0x65E67442158c12479752202411d2194aEC44eE94";
+    var contractAddress = "0xb56a9d4e984a39a7dc8a71ed6c9731ce56a9bc48";
+    var ABIArray = [{"constant":false,"inputs":[],"name":"getBookingIndex","outputs":[{"name":"len","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"getRatesIndex","outputs":[{"name":"len","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"index","type":"uint256"}],"name":"getBookingByIndex","outputs":[{"name":"","type":"string"},{"name":"","type":"string"},{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"rateCode","type":"string"},{"name":"host","type":"address"}],"name":"book","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"rateCode","type":"string"},{"name":"from","type":"string"},{"name":"to","type":"string"},{"name":"price","type":"uint256"}],"name":"SaveRate","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"index","type":"uint256"}],"name":"getRateByIndex","outputs":[{"name":"","type":"string"},{"name":"","type":"string"},{"name":"","type":"string"},{"name":"","type":"uint256"}],"payable":false,"type":"function"}];
+
+  //verify
+  if (typeof web3 !== 'undefined') {
+    web3 = new Web3(web3.currentProvider);
+  } else {
+    // set the provider you want from Web3.providers
+    web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+  }
+
+    $scope.bookings = [];
+
+    $scope.getBookings = function() 
+    {
+      	console.log("Start");
+
+      	var bookingContract = web3.eth.contract(ABIArray).at(contractAddress);
+       
+      	bookingContract.getBookingIndex.call(function(err, res)
+      	{
+      		console.log(res);
+      		for(var i=0; i<res.c[0]; i++)	
+      		{
+      			bookingContract.getBookingByIndex.call(i, function(err, res)
+      			{
+      				console.log(res);
+      				$scope.bookings.push({ 'ratecode' : res[0], 'status' : res[1], 'address' :  res[2] });
+      				$scope.$apply();
+      				console.log($scope.bookings);
+      			});
+      		}
+
+      		$('#loading').toggle();
+
+  		});
+
+    }
+
+    $scope.getBookings();
+
+});
+
+</script>
+
+</body>
+</html>

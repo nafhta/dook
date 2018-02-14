@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Welcome</title>
+	<link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>
+</head>
+<body ng-app="myApp">  
+
+	<div class="content" ng-controller="maincontroller">
+		<h1>Welcome</h1>
+
+		<h1>What it is Dook?</h1>
+		<p>Dook its a descentralized app</p>
+
+		<b>IPFS PEER ID :</b>  {{ipfspeerid}}
+		<!--
+		<input type="text" id="" placeholder="User" />
+		<input type="text" id="" placeholder="Password" />
+
+		<input type="button" value="" />-->
+		<br>
+		<button ng-click="publishDatabase()" class="btn">Publish to IPFS Network</button>
+		*You will be visible to Dook search. 
+		you will be published to IPFS network
+
+	</div>
+
+	<script type="text/javascript">
+	
+		var app = angular.module("myApp", []);
+
+		app.controller("maincontroller", function($scope, $http) 
+		{
+			$scope.ipfspeerid = null;
+			$scope.getIpfsPeerId = function()
+			{
+			 	$http.get("getipfspeerid").then(function(data)
+			 	{ 
+	      			console.log("Getting peer id");
+	          		$scope.ipfspeerid = data.data;
+	      		});
+	    	};
+
+	    	$scope.publishDatabase = function()
+	    	{
+	    		$http.get("saveHotelInfoNetWork").then(function(data)
+			 	{ 
+	      			console.log("publishing");
+	      			console.log(data);
+	      		});
+	    	};
+
+	    	$scope.getIpfsPeerId();
+
+		});
+
+
+	</script>
+	
+</body>
+</html>

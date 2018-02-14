@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+<body ng-app="myApp">
+
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Dook</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Room types</a></li>
+            <li><a href="#">Hotel info</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+
+            <div ng-controller="Roomtypes">
+              <form>
+                   <div class="form-group">
+                    <label class="col-md-4 control-label" for="hotelname">Name</label>  
+                    <div class="col-md-5">
+                    <input id="hotelname" ng-model="roomtype.name" name="roomname" type="text" placeholder="Room Name" class="form-control input-md">
+                      
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="col-md-4 control-label" for="hotelname"  >Adults</label>  
+                    <div class="col-md-5">
+                    <input id="hotelname" ng-model="roomtype.adults" name="adults" type="text" placeholder="Adults quantity" class="form-control input-md">
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="col-md-4 control-label" for="hotelname" >Childs</label>  
+                    <div class="col-md-5">
+                    <input id="hotelname" ng-model="roomtype.childs" name="childs" type="text" placeholder="Childs" class="form-control input-md">
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="col-md-4 control-label" for="hotelname">Quantity</label>  
+                    <div class="col-md-5">
+                    <input id="hotelname" ng-model="roomtype.quantity" name="childs" type="text" placeholder="Quantity" class="form-control input-md">
+                    </div>
+                  </div>
+
+                  <input type="submit" class="btn" ng-click="save(roomtype)" value="Save" />
+
+              </form>
+              
+              <div class="row">
+
+                <table class="table table-bordered">
+                    <tr>
+                      <td>room code</td>
+                      <td>name</td>
+                      <td>pax adultss</td>
+                      <td>options</td>
+                    </tr>
+                    <tr ng-repeat="x in roomtypes">
+                        <td>{{x._id}}</td>
+                        <td>{{x.name}}</td>
+                        <td>{{x.adults}}</td>
+                        <td>
+                          <button ng-click="delete(x)" class="btn">Delete</button>
+                          <button ng-click="priceplan(x)" class="btn">see priceplan</button>
+                        </td>
+                    </tr>
+                </table>
+
+              </div>
+
+
+      </div>
+    </div>
+</div>
+</div>
+
+<script>
+
+var app = angular.module("myApp", []);
+
+app.controller("Roomtypes", function($scope, $http) 
+{
+
+  var walletAddress = "0x65E67442158c12479752202411d2194aEC44eE94";
+  var contractAddress = "0xb56a9d4e984a39a7dc8a71ed6c9731ce56a9bc48";
+  var ABIArray = [{"constant":false,"inputs":[],"name":"getBookingIndex","outputs":[{"name":"len","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"getRatesIndex","outputs":[{"name":"len","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"index","type":"uint256"}],"name":"getBookingByIndex","outputs":[{"name":"","type":"string"},{"name":"","type":"string"},{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"rateCode","type":"string"},{"name":"host","type":"address"}],"name":"book","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"rateCode","type":"string"},{"name":"from","type":"string"},{"name":"to","type":"string"},{"name":"price","type":"uint256"}],"name":"SaveRate","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"index","type":"uint256"}],"name":"getRateByIndex","outputs":[{"name":"","type":"string"},{"name":"","type":"string"},{"name":"","type":"string"},{"name":"","type":"uint256"}],"payable":false,"type":"function"}];
+
+
+  //verify
+  if (typeof web3 !== 'undefined') {
+    web3 = new Web3(web3.currentProvider);
+  } else {
+    // set the provider you want from Web3.providers
+    web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+  }
+
+  web3.eth.getBalance(walletAddress, function(err, result)
+  {
+    console.log(result.c[0]);
+  });
+
+
+    $scope.roomtypes = null;
+
+    $scope.getRoomtypes = function() 
+    {
+      $http.get("getroomtypes").then(function(data) 
+      { 
+          $scope.roomtypes = data.data;
+      });
+    }
+
+    $scope.getRoomtypes();
+
+    $scope.save = function(roomtype) 
+    {
+      $http.get("saveroomtype", { params: roomtype }).then(function(data) 
+      {
+        $scope.getRoomtypes();
+        $scope.$apply();
+      });
+
+    };
+
+    $scope.priceplan = function(roomtype)
+    {
+      window.location = "/priceplan?id=" + roomtype._id;
+    };
+
+    $scope.delete = function(roomtype)
+    {
+        $http.get("removeroomtype", { params: roomtype }).then(function(data) 
+        {
+          console.log(data);
+          $scope.getRoomtypes();        
+        });
+    };
+
+    $scope.publish = function(roomtype)
+    {
+
+      roomtype.from = convertTimeStamp(roomtype.from);
+      roomtype.to = convertTimeStamp(roomtype.to)
+
+
+
+
+      $http.get("publishRoomtype", { params: roomtype }).then(function(data) 
+      {
+        console.log(data);
+        $scope.getRoomtypes(); 
+      });
+
+
+    }
+
+    $scope.convertTimeStamp = function(date)
+    {
+     return new Date(date).getTime();
+    }
+
+});
+
+</script>
+
+</body>
+</html>
